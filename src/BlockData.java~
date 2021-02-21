@@ -1,0 +1,164 @@
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.TreeMap;
+
+public class BlockData {
+    // Place holders (ideal since primitive array search time is O(1))
+    private static BufferedImage[] blockImages;
+    private static TreeMap<Byte, Integer>[] blockDrops;
+    private static int[] blockHealth;
+    private static boolean[] blockCanWalkThrough;
+
+    // Image optimization
+    private static BufferedImage[] blockImagesResized;
+    private static int staticRenderDistance = 0;
+    private static int staticDimensionX = 0;
+    private static int staticDimensionY = 0;
+
+    // Starts the block data loading sequence
+    public BlockData() {
+        // Initialized the arrays
+        blockImages = new BufferedImage[255];
+        blockImagesResized = new BufferedImage[255];
+        blockDrops = new TreeMap[255];
+        blockHealth = new int[255];
+        blockCanWalkThrough = new boolean[255];
+
+        // Loads the block data into the arrays
+        loadBlockImage(blockImages);
+        loadBlockDrops(blockDrops);
+        loadBlockHealth(blockHealth);
+        loadBlockCanWalkThrough(blockCanWalkThrough);
+    }
+
+    /////=== Loading methods for all block data ===\\\\\
+    private void loadBlockImage(BufferedImage[] blockImages) {
+        BufferedImage blockCollection = null;
+        BufferedImage transparentBlockCollection = null;
+        try {
+            blockCollection = ImageIO.read(new File("Images/Minecraft2D-BlockTextures.bmp"));
+            transparentBlockCollection = ImageIO.read(new File("Images/Minecraft2D-BlockTextures.png"));
+        } catch (Exception E) {
+            System.out.println("[STATIC BLOCK DATA] Failed to load block collection image");
+            return;
+        }
+
+        blockImages[1] = DrawTools.loadSubImage(blockCollection, 16, 2, 0); // Grass block
+        blockImages[2] = DrawTools.loadSubImage(blockCollection, 16, 3, 0); // Dirt block
+        blockImages[3] = DrawTools.loadSubImage(blockCollection, 16, 0, 0); // Stone block
+        blockImages[4] = DrawTools.loadSubImage(blockCollection, 16, 4, 1); // Oak Wood block
+        blockImages[5] = DrawTools.loadSubImage(transparentBlockCollection, 16, 8, 1); // Oak Leaves block
+        blockImages[6] = DrawTools.loadSubImage(blockCollection, 16, 5, 0); // Oak Planks block
+        blockImages[7] = DrawTools.loadSubImage(blockCollection, 16, 2, 1); // Coal Ore block
+        blockImages[8] = DrawTools.loadSubImage(blockCollection, 16, 1, 1); // Iron Ore block
+        blockImages[9] = DrawTools.loadSubImage(blockCollection, 16, 0, 1); // Gold Ore block
+        blockImages[10] = DrawTools.loadSubImage(blockCollection, 16, 9, 6); // Diamond Ore block
+        blockImages[11] = DrawTools.loadSubImage(blockCollection, 16, 6, 12); // Emerald Ore block
+        blockImages[12] = DrawTools.loadSubImage(blockCollection, 16, 4, 0); // Cobblestone
+        blockImages[13] = DrawTools.loadSubImage(blockCollection, 16, 5, 9); // Netherrack
+
+    }
+
+    private void loadBlockDrops(TreeMap<Byte, Integer>[] blockDrops) {
+        blockDrops[1] = addItemsToMap("2-1");
+        blockDrops[2] = addItemsToMap("1-1");
+        blockDrops[3] = addItemsToMap("12-1");
+        blockDrops[4] = addItemsToMap("4-1");
+        blockDrops[5] = addItemsToMap("5-1");
+        blockDrops[6] = addItemsToMap("6-1");
+        blockDrops[7] = addItemsToMap("1-1");
+        blockDrops[8] = addItemsToMap("1-1");
+        blockDrops[9] = addItemsToMap("1-1");
+        blockDrops[10] = addItemsToMap("1-1");
+        blockDrops[11] = addItemsToMap("1-1");
+        blockDrops[12] = addItemsToMap("12-1");
+        blockDrops[13] = addItemsToMap("13-1");
+    }
+
+    private TreeMap<Byte, Integer> addItemsToMap(String items) {
+        TreeMap<Byte, Integer> map = new TreeMap<>();
+
+        String[] list = items.split(" ");
+        for (int i = 0; i < list.length; i++) {
+            String[] element = list[i].split("-");
+            map.put(Byte.parseByte(element[0]), Integer.parseInt(element[1]));
+        }
+
+        return map;
+    }
+
+    private void loadBlockHealth(int[] blockHealth) {
+        blockHealth[1] = 100;
+        blockHealth[2] = 100;
+        blockHealth[3] = 100;
+        blockHealth[4] = 100;
+        blockHealth[5] = 100;
+        blockHealth[6] = 100;
+        blockHealth[7] = 100;
+        blockHealth[8] = 100;
+        blockHealth[9] = 100;
+        blockHealth[10] = 100;
+        blockHealth[11] = 100;
+        blockHealth[12] = 100;
+        blockHealth[13] = 100;
+    }
+
+    private void loadBlockCanWalkThrough(boolean[] blockCanWalkThrough) {
+        blockCanWalkThrough[0] = true;
+        blockCanWalkThrough[1] = false;
+        blockCanWalkThrough[2] = false;
+        blockCanWalkThrough[3] = false;
+        blockCanWalkThrough[4] = false;
+        blockCanWalkThrough[5] = false;
+        blockCanWalkThrough[6] = false;
+        blockCanWalkThrough[7] = false;
+        blockCanWalkThrough[8] = false;
+        blockCanWalkThrough[9] = false;
+        blockCanWalkThrough[10] = false;
+        blockCanWalkThrough[11] = false;
+        blockCanWalkThrough[12] = false;
+        blockCanWalkThrough[13] = false;
+    }
+
+    /////=== Getters after the data is loaded ===\\\\\
+    public static BufferedImage getBlockImage(int blockType) {
+        return blockImages[Math.abs(blockType)];
+    }
+
+    public static TreeMap<Byte, Integer> getBlockDrops(int blockType) {
+        return blockDrops[Math.abs(blockType)];
+    }
+
+    public static int getBlockHealth(int blockType) {
+        return blockHealth[Math.abs(blockType)];
+    }
+
+    public static boolean getBlockCanWalkThrough(int blockType) {
+        return blockCanWalkThrough[Math.abs(blockType)];
+    }
+
+    /////=== Optimal block rendering ===\\\\\
+    public static BufferedImage getBlockImageResized(Dimension dimension, int renderDistance, int blockType) {
+        if (blockImages[Math.abs(blockType)] == null) return null;
+
+        if (staticDimensionX == (int) dimension.getWidth() && staticDimensionY == (int) dimension.getHeight() && staticRenderDistance == renderDistance && blockImagesResized[Math.abs(blockType)] != null) {
+            return blockImagesResized[Math.abs(blockType)];
+        }
+
+        staticDimensionX = (int) dimension.getWidth();
+        staticDimensionY = (int) dimension.getHeight();
+        staticRenderDistance = renderDistance;
+
+        int sideLength = (int) Math.ceil(DrawTools.game2screenLength(dimension, renderDistance, 1));
+
+        for (int i = 0; i < blockImagesResized.length; i++) {
+            if (blockImages[i] != null)
+                blockImagesResized[i] = DrawTools.image2Buffered(blockImages[i].getScaledInstance(sideLength, sideLength, Image.SCALE_DEFAULT));
+        }
+
+        //blockImagesResized[Math.abs(blockType)] = blockImages[Math.abs(blockType)].;
+        return blockImagesResized[Math.abs(blockType)];
+    }
+}

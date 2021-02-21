@@ -1,0 +1,117 @@
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.TreeMap;
+
+public class ItemData {
+    // Place holders (ideal since primitive array search time is O(1))
+    private static BufferedImage[] itemImages;
+    private static TreeMap<Byte, Integer>[] itemCosts; // Item, quantity
+    private static String[] itemNames;
+
+    // Starts the block data loading sequence
+    public ItemData() {
+        // Initialized the arrays
+        itemImages = new BufferedImage[255];
+        itemCosts = new TreeMap[255];
+        itemNames = new String[255];
+
+        // Loads the item data into the arrays
+        loadItemNames(itemNames);
+        loadItemImage(itemImages);
+        loadItemCosts(itemCosts);
+    }
+
+    /////=== Loading methods ===\\\\\
+    private void loadItemNames(String[] itemNames){
+        itemNames[0] = "Air";
+        itemNames[1] = "Grass Block";
+        itemNames[2] = "Dirt Block";
+        itemNames[3] = "Stone Block";
+        itemNames[4] = "Oak Wood Block";
+        itemNames[5] = "Oak Leaves Block";
+        itemNames[6] = "Oak Planks Block";
+        itemNames[7] = "Coal Ore Block";
+        itemNames[8] = "Iron Ore Block";
+        itemNames[9] = "Gold Ore Block";
+        itemNames[10] = "Diamond Ore Block";
+        itemNames[11] = "Emerald Ore Block";
+        itemNames[12] = "Cobblestone Block";
+        itemNames[13] = "Netherrack Block";
+
+    }
+
+    private void loadItemImage(BufferedImage[] itemImages) {
+        BufferedImage blockCollection = null;
+        BufferedImage transparentBlockCollection = null;
+        try {
+            blockCollection = ImageIO.read(new File("Images/Minecraft2D-BlockTextures.bmp"));
+            transparentBlockCollection = ImageIO.read(new File("Images/Minecraft2D-BlockTextures.png"));
+            System.out.println("ItemData needs more items!");
+            // more items
+        } catch (Exception E) {
+            System.out.println("[STATIC BLOCK DATA] Failed to load block collection image");
+            return;
+        }
+
+        itemImages[1] = DrawTools.loadSubImage(blockCollection, 16, 2, 0); // Grass block
+        itemImages[2] = DrawTools.loadSubImage(blockCollection, 16, 3, 0); // Dirt block
+        itemImages[3] = DrawTools.loadSubImage(blockCollection, 16, 0, 0); // Stone block
+        itemImages[4] = DrawTools.loadSubImage(blockCollection, 16, 4, 1); // Oak Wood block
+        itemImages[5] = DrawTools.loadSubImage(blockCollection, 16, 8, 1); // Oak Leaves block
+        itemImages[6] = DrawTools.loadSubImage(blockCollection, 16, 5, 0); // Oak Planks block
+        itemImages[7] = DrawTools.loadSubImage(blockCollection, 16, 2, 1); // Coal Ore block
+        itemImages[8] = DrawTools.loadSubImage(blockCollection, 16, 1, 1); // Iron Ore block
+        itemImages[9] = DrawTools.loadSubImage(blockCollection, 16, 0, 1); // Gold Ore block
+        itemImages[10] = DrawTools.loadSubImage(blockCollection, 16, 9, 6); // Diamond Ore block
+        itemImages[11] = DrawTools.loadSubImage(blockCollection, 16, 6, 12); // Emerald Ore block
+        itemImages[12] = DrawTools.loadSubImage(blockCollection, 16, 4, 0); // Cobblestone
+        itemImages[13] = DrawTools.loadSubImage(blockCollection, 16, 5, 9); // Netherrack
+
+
+    }
+
+    private void loadItemCosts(TreeMap<Byte, Integer>[] itemCosts) {
+        itemCosts[1] = addItemsToMap("2-1");
+        itemCosts[2] = addItemsToMap("1-1");
+        itemCosts[3] = addItemsToMap("12-1 2-1");
+        itemCosts[4] = addItemsToMap("4-1");
+        itemCosts[5] = addItemsToMap("5-1 3-3");
+        itemCosts[6] = addItemsToMap("6-1");
+        itemCosts[7] = addItemsToMap("1-1");
+        itemCosts[8] = addItemsToMap("1-1");
+        itemCosts[9] = addItemsToMap("1-1");
+        itemCosts[10] = addItemsToMap("1-1");
+        itemCosts[11] = addItemsToMap("1-1");
+        itemCosts[12] = addItemsToMap("12-1");
+        itemCosts[13] = addItemsToMap("13-1");
+    }
+
+    private TreeMap<Byte, Integer> addItemsToMap(String items) {
+        TreeMap<Byte, Integer> map = new TreeMap<>();
+
+        String[] list = items.split(" ");
+        for (int i = 0; i < list.length; i++) {
+            String[] element = list[i].split("-");
+            map.put(Byte.parseByte(element[0]), Integer.parseInt(element[1]));
+        }
+
+        return map;
+    }
+
+    /////=== Getters for the item data ===\\\\\
+
+    public static BufferedImage getItemImage(byte itemType) {
+        return itemImages[itemType];
+    }
+
+    public static TreeMap<Byte, Integer> getItemCost(int itemType) {
+        return itemCosts[itemType];
+    }
+
+    public static String getItemName(byte itemType) {return itemNames[itemType];}
+
+    public static TreeMap<Byte, Integer>[] getItemCosts() {
+        return itemCosts;
+    }
+}
